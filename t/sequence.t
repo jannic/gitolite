@@ -44,7 +44,7 @@ try "
     # push
     cd ..
     glt clone u2 file:///foo/u1/bar u2bar
-        /Cloning into 'u2bar'.../
+        /Cloning into '?u2bar'?.../
     cd u2bar
     tc p-222
     glt push u2
@@ -89,7 +89,7 @@ try "
     # push
     cd ..
     glt clone u2 file:///foo/u1/bar u2bar
-        /Cloning into 'u2bar'.../
+        /Cloning into '?u2bar'?.../
     cd u2bar
     tc p-222
     glt push u2

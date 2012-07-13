@@ -66,7 +66,7 @@ try "
     CLONE u4 foo foo4; !ok
         /R any foo u4 DENIED by fallthru/
     CLONE u4 foo-pc ; ok;
-        /Cloning into 'foo-pc'/
+        /Cloning into '?foo-pc'?/
         /new branch.* dev/u1/foo .* dev/u1/foo/
         /new branch.* master .* master/
         /new branch.* next .* next/

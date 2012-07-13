@@ -54,7 +54,7 @@ glt push u4 origin master;              ok;     /To file:///foo/u4/a12/
 
 # u1 clone success
 cd ..
-glt clone u1 file:///foo/u4/a12 u1a12;  ok;     /Cloning into 'u1a12'.../
+glt clone u1 file:///foo/u4/a12 u1a12;  ok;     /Cloning into '?u1a12'?.../
 
 # u1 push fail
 cd u1a12
@@ -63,7 +63,7 @@ glt push u1 origin;                     !ok;    /W any foo/u4/a12 u1 DENIED by f
 
 # u2 clone success
 cd ..
-glt clone u2 file:///foo/u4/a12 u2a12;  ok;     /Cloning into 'u2a12'.../
+glt clone u2 file:///foo/u4/a12 u2a12;  ok;     /Cloning into '?u2a12'?.../
 
 # u2 push success
 cd u2a12
@@ -102,7 +102,7 @@ WRITERS u6
 
 try "
 # u5 clone success
-glt clone u5 file:///foo/u4/a12 u5a12;  ok;     /Cloning into 'u5a12'.../
+glt clone u5 file:///foo/u4/a12 u5a12;  ok;     /Cloning into '?u5a12'?.../
 
 # u5 push fail
 cd u5a12
@@ -111,7 +111,7 @@ glt push u5;                            !ok;    /W any foo/u4/a12 u5 DENIED by f
 
 # u6 clone success
 cd ..
-glt clone u6 file:///foo/u4/a12 u6a12;  ok;     /Cloning into 'u6a12'.../
+glt clone u6 file:///foo/u4/a12 u6a12;  ok;     /Cloning into '?u6a12'?.../
 
 # u6 push success
 cd u6a12

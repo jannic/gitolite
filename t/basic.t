@@ -245,7 +245,7 @@ try "
     cd ..;                      ok
 
     CLONE tester r1;            ok;     gsh
-                                        /Cloning into 'r1'.../
+                                        /Cloning into '?r1'?.../
     cd r1;                      ok
     test-commit r1a r1b r1c r1d r1e r1f
                                 ok
@@ -272,7 +272,7 @@ try "
     cd ..;                      ok
 
     CLONE tester r2;            ok;     gsh
-                                        /Cloning into 'r2'.../
+                                        /Cloning into '?r2'?.../
     cd r2;                      ok
     test-commit r2a r2b r2c r2d r2e r2f
                                 ok

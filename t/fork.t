@@ -38,7 +38,7 @@ put "$ENV{G3T_RC}", "\$rc{COMMANDS}{fork} = 1;\n\$rc{DEFAULT_ROLE_PERMS} = 'READ
 
 try "
     # now the fork succeeds
-    glt fork u1 foo/u1/u1a foo/u1/u1a2; ok;     /Cloning into bare repository '.*/foo/u1/u1a2.git'/
+    glt fork u1 foo/u1/u1a foo/u1/u1a2; ok;     /Cloning into bare repository '?.*/foo/u1/u1a2.git'?/
                                                 /foo/u1/u1a forked to foo/u1/u1a2/
 
     # now the actual testing starts
@@ -50,7 +50,7 @@ try "
     glt fork u1 foo/u1/u1a foo/u2/u1d;  !ok;    /'foo/u2/u1d' already exists or you are not allowed to create it/
 
     # no error
-    glt fork u1 foo/u1/u1a foo/u1/u1e;  ok;     /Cloning into bare repository '.*/foo/u1/u1e.git'/
+    glt fork u1 foo/u1/u1a foo/u1/u1e;  ok;     /Cloning into bare repository '?.*/foo/u1/u1e.git'?/
                                                 /warning: You appear to have cloned an empty repository/
                                                 /foo/u1/u1a forked to foo/u1/u1e/
     # both exist

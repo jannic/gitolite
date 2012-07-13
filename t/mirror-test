@@ -85,7 +85,7 @@ try "
 # push to frodo and see sam and gollum change
 try "
     git clone frodo\@localhost:gitolite-admin fga
-        ok; /Cloning into 'fga'.../
+        ok; /Cloning into '?fga'?.../
     cd fga;                             ok
     cp $h/.ssh/u?.pub keydir;           ok
     git add keydir;                     ok
@@ -113,7 +113,7 @@ try "
 # push to sam and see frodo and gollum change
 try "
     git clone sam\@localhost:gitolite-admin sga
-        ok; /Cloning into 'sga'.../
+        ok; /Cloning into '?sga'?.../
     cd sga;                             ok
     empty;                              ok
     git push;                           ok
@@ -139,7 +139,7 @@ try "
 # push to gollum and fail at gollum
 try "
     git clone gollum\@localhost:gitolite-admin gga
-        ok; /Cloning into 'gga'.../
+        ok; /Cloning into '?gga'?.../
     cd gga;                             ok
     empty;                              ok
     git push;                           !ok
@@ -187,7 +187,7 @@ try "
     cd ..
     rm -rf fga
     git clone frodo\@localhost:gitolite-admin fga
-        ok; /Cloning into 'fga'.../
+        ok; /Cloning into '?fga'?.../
     cd fga;                             ok
     empty;                              ok
     git push;                           ok
@@ -229,7 +229,7 @@ try "
     rm -rf fga sga gga
 
     git clone sam\@localhost:r1 sr1
-        /Cloning into 'sr1'.../
+        /Cloning into '?sr1'?.../
         /warning: You appear to have cloned an empty repository/
     cd sr1
     empty

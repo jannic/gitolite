@@ -29,7 +29,7 @@ try "
 
     # basic clone
     cd ..
-    glt clone u1 file://aa u1aa;    ok;     /Cloning into 'u1aa'.../
+    glt clone u1 file://aa u1aa;    ok;     /Cloning into '?u1aa'?.../
                                             /warning: You appear to have cloned an empty repository/
     ls -ald --time-style=long-iso u1aa;
                                     ok;     /drwxr-xr-x 3 $ENV{USER} $ENV{USER} \\d+ 201.-..-.. ..:.. u1aa/
@@ -60,7 +60,7 @@ try "
 
     # basic rewind deny
     cd ..
-    glt clone u2 file://aa u2aa;    ok;     /Cloning into 'u2aa'.../
+    glt clone u2 file://aa u2aa;    ok;     /Cloning into '?u2aa'?.../
     cd u2aa;                        ok
     tc g-776 g-777 g-778;           ok;     /master 9cbc181. g-778/
     glt push u2 origin HEAD;        ok;     /284951d..9cbc181  HEAD -> master/

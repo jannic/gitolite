@@ -33,7 +33,7 @@ try "
                 /FATAL: R any dev/wild1 u1 DENIED by fallthru/
 
     glt clone u3 file:///dev/wild1
-                /Cloning into 'wild1'.../
+                /Cloning into '?wild1'?.../
                 /Initialized empty Git repository in .*/dev/wild1.git//
                 /warning: You appear to have cloned an empty repository./
 
