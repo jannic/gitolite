@@ -67,8 +67,9 @@ my $last_repo = '';
 
 sub access {
     my ( $repo, $user, $aa, $ref ) = @_;
-    _die "invalid repo '$repo'" if not( $repo and $repo =~ $REPOPATT_PATT );
     _die "invalid user '$user'" if not( $user and $user =~ $USERNAME_PATT );
+    sanity($repo);
+
     my $deny_rules = option( $repo, 'deny-rules' );
     load($repo);
 
@@ -175,8 +176,18 @@ sub option {
     return $ret->{$option};
 }
 
+sub sanity {
+    my $repo = shift;
+
+    _die "invalid repo '$repo'" if not( $repo and $repo =~ $REPOPATT_PATT );
+    _die "'$repo' ends with a '/'" if $repo =~ m(/$);
+    _die "'$repo' contains '..'" if $repo =~ $REPONAME_PATT and $repo =~ m(\.\.);
+}
+
 sub repo_missing {
     my $repo = shift;
+    sanity($repo);
+
     return not -d "$rc{GL_REPO_BASE}/$repo.git";
 }
 
@@ -211,7 +222,7 @@ sub load_1 {
     trace( 3, $repo );
 
     if ( repo_missing($repo) ) {
-        trace( 1, "repo '$repo' missing" );
+        trace( 1, "repo '$repo' missing" ) if $repo =~ $REPONAME_PATT;
         return;
     }
     _chdir("$rc{GL_REPO_BASE}/$repo.git");
@@ -255,7 +266,7 @@ sub load_1 {
 
         for my $r (@repos) {
             for my $u (@users) {
-                push @rules, @{ $repos{$r}{$u} } if exists $repos{$r}{$u};
+                push @rules, @{ $repos{$r}{$u} } if exists $repos{$r} and exists $repos{$r}{$u};
             }
         }
 
@@ -308,14 +319,14 @@ sub memberships {
         }
     }
 
+    push @ret, @{ ext_grouplist($base) } if $type eq 'user' and $rc{GROUPLIST_PGM};
+
     if ( $type eq 'user' and $repo and not repo_missing($repo) ) {
         # find the roles this user has when accessing this repo and add those
         # in as groupnames he is a member of.  You need the already existing
         # memberships for this; see below this function for an example
         push @ret, user_roles( $base, $repo, @ret );
     }
-
-    push @ret, @{ ext_grouplist($base) } if $type eq 'user' and $rc{GROUPLIST_PGM};
 
     @ret = @{ sort_u( \@ret ) };
     trace( 3, sort @ret );
@@ -400,6 +411,8 @@ sub generic_name {
 
 sub creator {
     my $repo = shift;
+    sanity($repo);
+
     return ( $ENV{GL_USER} || '' ) if repo_missing($repo);
     my $f       = "$rc{GL_REPO_BASE}/$repo.git/gl-creator";
     my $creator = '';
