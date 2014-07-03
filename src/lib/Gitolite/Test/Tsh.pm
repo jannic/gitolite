@@ -227,7 +227,7 @@ sub tsh_tempdir {
 
 sub print_plan {
     return unless $ENV{HARNESS_ACTIVE};
-    my $_ = shift;
+    local $_ = shift;
     say "1..$_";
 }
 
@@ -235,7 +235,7 @@ sub rc_lines {
     my @lines = @_;
 
     while (@lines) {
-        my $_ = shift @lines;
+        local $_ = shift @lines;
         chomp; $_ = trim_ws($_);
 
         $line++;
@@ -261,7 +261,12 @@ sub rc_lines {
             $cmd = shift @cmds;
 
             # is the current command a "testing" command?
-            my $testing_cmd = ( $cmd =~ m(^ok(?:\s+or\s+(.*))?$) or $cmd =~ m(^!ok(?:\s+or\s+(.*))?$) or $cmd =~ m(^/(.*?)/(?:\s+or\s+(.*))?$) or $cmd =~ m(^!/(.*?)/(?:\s+or\s+(.*))?$) );
+            my $testing_cmd = (
+                   $cmd =~ m(^ok(?:\s+or\s+(.*))?$)
+                or $cmd =~ m(^!ok(?:\s+or\s+(.*))?$)
+                or $cmd =~ m(^/(.*?)/(?:\s+or\s+(.*))?$)
+                or $cmd =~ m(^!/(.*?)/(?:\s+or\s+(.*))?$)
+            );
 
             # warn if the previous command failed but rc is not being checked
             if ( $rc and not $testing_cmd ) {
@@ -310,12 +315,12 @@ sub def {
     my $e;    # the expanded value
     if ( $e = $def{$c} ) {    # starting value
         for my $i ( 1 .. 9 ) {
-            last unless $e =~ /%$i/;    # no more %N's (we assume sanity)
+            last unless $e =~ /%$i/;                              # no more %N's (we assume sanity)
             die "$def{$c} requires more arguments\n" unless @d;
-            my $f = shift @d;           # get the next datum
-            $e =~ s/%$i/$f/g;           # and substitute %N all over
+            my $f = shift @d;                                     # get the next datum
+            $e =~ s/%$i/$f/g;                                     # and substitute %N all over
         }
-        return join( " ", $e, @d );     # join up any remaining data
+        return join( " ", $e, @d );                               # join up any remaining data
     }
     return '';
 }
@@ -474,7 +479,7 @@ sub fail {
 
 sub cmp {
     # compare input string with second input string or text()
-    my $in   = shift;
+    my $in = shift;
     my $text = ( @_ ? +shift : text() );
 
     if ( $text eq $in ) {
@@ -517,13 +522,13 @@ sub sm {
 }
 
 sub trim_ws {
-    my $_ = shift;
+    local $_ = shift;
     s/^\s+//; s/\s+$//;
     return $_;
 }
 
 sub is_comment_or_empty {
-    my $_ = shift;
+    local $_ = shift;
     chomp; $_ = trim_ws($_);
     if (/^##\s(.*)/) {
         $testname = $1;
@@ -533,7 +538,7 @@ sub is_comment_or_empty {
 }
 
 sub cmds {
-    my $_ = shift;
+    local $_ = shift;
     chomp; $_ = trim_ws($_);
 
     # split on unescaped ';'s, then unescape the ';' in the results
@@ -583,7 +588,7 @@ sub dummy_commits {
             test_tick();
             next;
         }
-        my $ts = ( $tick ? gmtime($tick+19800) : gmtime() );
+        my $ts = ( $tick ? gmtime( $tick + 19800 ) : gmtime() );
         _sh("echo $f at $ts >> $f && git add $f && git commit -m '$f at $ts'");
     }
 }

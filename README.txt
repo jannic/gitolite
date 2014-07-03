@@ -15,7 +15,7 @@ This file contains BASIC DOCUMENTATION ONLY.
 
 The COMPLETE DOCUMENTATION is at:
 
-    http://sitaramc.github.com/gitolite/master-toc.html
+    http://gitolite.com/gitolite/master-toc.html
 
 Please go there for what/why/how, concepts, background, troubleshooting, more
 details on what is covered here, or advanced features not covered here.
@@ -40,7 +40,9 @@ This file contains the following sections:
     GIT-DAEMON
     GITWEB
 
-    CONTACT
+    MIGRATING FROM v2
+
+    CONTACT AND SUPPORT
     LICENSE
 
 ------------------------------------------------------------------------
@@ -219,7 +221,7 @@ ACCESS RULES
 GROUPS
 ------
 
-    Gitolite allows you to groups users or repos for convenience.  Here's an
+    Gitolite allows you to group users or repos for convenience.  Here's an
     example that creates two groups of users:
 
         @staff      =   alice bob carol
@@ -287,9 +289,9 @@ GIT-CONFIG
 
     **WARNING**
 
-        The last syntax shown above is the *only* way to *delete* a config
-        variable once you have added it.  Merely removing it from the conf
-        file will *not* delete it from the repo.git/config file.
+        The last two syntaxes shown above are the *only* way to *delete*
+        a config variable once you have added it.  Merely removing it from
+        the conf file will *not* delete it from the repo.git/config file.
 
     **SECURITY NOTE**
 
@@ -346,25 +348,85 @@ GITWEB
 ------------------------------------------------------------------------
 
 
-CONTACT
--------
+MIGRATING FROM v2
+-----------------
 
-    NOTE: Unless you have very good reasons, please use the mailing list below
-    instead of mailing me personally.  If you have to mail me, use the gmail
-    address instead of my work address.
+    This section describes how to migrate a basic install of v2 to v3.
 
-    Author: sitaramc@gmail.com, sitaram@atc.tcs.com
+    However, if you have used any of the following features:
 
-    Mailing list for questions and general discussion:
+      * any non-default settings in the rc file
+      * NAME/ rules
+      * subconf and delegation
+      * mirroring
+      * wild repos (user-created repos)
+      * any custom hooks of your own
+
+    you should go through the full set of migration instructions at
+    http://gitolite.com/gitolite/migr.html
+
+    The steps to follow to migrate a simple v2 setup to v3 are as follows:
+
+    0.  take a backup :-)
+
+    1.  remove old gitolite
+
+        1.1 Remove (or rename)
+
+          * the directories named in the rc variables GL_PACKAGE_CONF and
+            GL_PACKAGE_HOOKS (look in ~/.gitolite.rc)
+
+          * ~/.gitolite.rc
+
+          * the gitolite v2 code, whose location you can find in the
+            "command=" parameter in any of the gitolite keys in
+            ~/.ssh/authorized_keys
+
+          * ~/.gitolite (preserve ~/.gitolite/logs if you wish)
+
+        1.2 Edit ~/.ssh/authorized_keys and delete all lines pertaining to
+            gitolite (they will have a "command=" option pointing to
+            gl-auth-command)
+
+        1.3 Clone ~/repositories/gitolite-admin.git to some safe location on
+            the same server.
+
+            NOTE: please clone using the file system directly, not via ssh.
+
+        1.4 Delete ~/repositories/gitolite-admin.git (the repo you just
+            cloned).
+
+            NOTE: DO NOT delete any other repo in ~/repositories.  Leave them
+            all as they are.
+
+    2.  install gitolite as normal.  It doesn't matter what pubkey you use in
+        the "gitolite setup" step; in fact you may even choose to just run
+        "gitolite setup -a admin".  The admin repo created in this step will
+        get wiped out in the next step anyway.
+
+    3.  go to the clone you made in step 1.3 and run 'gitolite push -f'.
+
+        NOTE: that is 'gitolite push -f', not 'git push -f' :-)
+
+
+------------------------------------------------------------------------
+
+
+CONTACT AND SUPPORT
+-------------------
+
+    Mailing list for support and general discussion:
         gitolite@googlegroups.com
         subscribe address: gitolite+subscribe@googlegroups.com
 
     Mailing list for announcements and notices:
-        gitolite-announce@googlegroups.com
         subscribe address: gitolite-announce+subscribe@googlegroups.com
 
     IRC: #git and #gitolite on freenode.  Note that I live in India (UTC+0530
     time zone).
+
+    Author: sitaramc@gmail.com, but please DO NOT use this for general support
+    questions.  Subscribe to the list and ask there instead.
 
 
 LICENSE

@@ -12,13 +12,17 @@
 
 # - run a cron job to delete old repos based on age (the TRASH_SUFFIX has a
 #   timestamp); your choice how/how often you do that
+
+# - you can completely disable the 'rm' command by setting an rc variable
+#   called D_DISABLE_RM to "1".
 # ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
 # Usage:    ssh git@host D <subcommand> <argument>
 #
 # The whimsically named "D" command deletes repos ("D" is a counterpart to the
-# "C" permission which lets you create repos!)
+# "C" permission which lets you create repos.  Which also means that, just
+# like "C", it only works for wild repos).
 #
 # There are two kinds of deletions: 'rm' removes a repo completely, while
 # 'trash' moves it to a trashcan which can be recovered later (upto a time
@@ -58,13 +62,15 @@ TRASH_SUFFIX=`gitolite query-rc TRASH_SUFFIX`;  tsuf=`date +%Y-%m-%d_%H:%M:%S`; 
 # ----------------------------------------------------------------------
 
 owner_or_die() {
-    gitolite creator "$repo" $GL_USER || die You are not authorised
+    gitolite owns "$repo" || die You are not authorised
 }
 
 # ----------------------------------------------------------------------
 
 if [ "$cmd" = "rm" ]
 then
+
+    gitolite query-rc -q D_DISABLE_RM && die "sorry, 'unlock' and 'rm' are disabled"
 
     owner_or_die
     [ -f $repo.git/gl-rm-ok ] || die "'$repo' is locked!"
@@ -80,6 +86,8 @@ then
 
 elif [ "$cmd" = "unlock" ]
 then
+
+    gitolite query-rc -q D_DISABLE_RM && die "sorry, 'unlock' and 'rm' are disabled"
 
     owner_or_die
     touch $repo.git/gl-rm-ok

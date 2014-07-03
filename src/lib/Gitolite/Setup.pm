@@ -39,7 +39,6 @@ Subsequent runs:
 );
 
 use Exporter 'import';
-use Getopt::Long;
 
 use Gitolite::Rc;
 use Gitolite::Common;
@@ -73,7 +72,8 @@ sub args {
     my $help   = 0;
     my $argv   = join( " ", @ARGV );
 
-    GetOptions(
+    require Getopt::Long;
+    Getopt::Long::GetOptions(
         'admin|a=s'     => \$admin,
         'pubkey|pk=s'   => \$pubkey,
         'hooks-only|ho' => \$h_only,
@@ -81,18 +81,20 @@ sub args {
     ) or usage();
 
     usage() if $help or ( $pubkey and $admin );
-    usage() if $h_only and ($admin or $pubkey);
+    usage() if $h_only and ( $admin or $pubkey );
 
     if ($pubkey) {
-        $pubkey =~ /\.pub$/ or _die "'$pubkey' name does not end in .pub";
-        $pubkey =~ /\@/ and _die "'$pubkey' name contains '\@'";
+        $pubkey =~ /\.pub$/                 or _die "'$pubkey' name does not end in .pub";
         tsh_try("cat $pubkey")              or _die "'$pubkey' not a readable file";
         tsh_lines() == 1                    or _die "'$pubkey' must have exactly one line";
         tsh_try("ssh-keygen -l -f $pubkey") or _die "'$pubkey' does not seem to be a valid ssh pubkey file";
 
         $admin = $pubkey;
-        $admin =~ s(.*/)();
-        $admin =~ s/\.pub$//;
+        # next 2 lines duplicated from args() in ssh-authkeys
+        $admin =~ s(.*/)();                # foo/bar/baz.pub -> baz.pub
+        $admin =~ s/(\@[^.]+)?\.pub$//;    # baz.pub, baz@home.pub -> baz
+        $pubkey =~ /\@/ and print STDERR "NOTE: the admin username is '$admin'\n";
+
     }
 
     return ( $admin || '', $pubkey || '', $h_only || 0, $argv );

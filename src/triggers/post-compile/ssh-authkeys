@@ -28,7 +28,7 @@ tsh_try("sestatus");
 my $selinux = ( tsh_text() =~ /enabled/ );
 
 my $ab = $rc{GL_ADMIN_BASE};
-trace( 2, "'keydir' not found in '$ab'; exiting" ), exit if not -d "$ab/keydir";
+trace( 1, "'keydir' not found in '$ab'; exiting" ), exit if not -d "$ab/keydir";
 my $akdir        = "$ENV{HOME}/.ssh";
 my $akfile       = "$ENV{HOME}/.ssh/authorized_keys";
 my $glshell      = $rc{GL_BINDIR} . "/gitolite-shell";
@@ -75,10 +75,11 @@ sub sanity {
     _die "'$glshell' found but not readable; this should NOT happen..."   if not -r $glshell;
     _die "'$glshell' found but not executable; this should NOT happen..." if not -x $glshell;
 
-    _warn "$akdir missing; creating a new one"  if not -d $akdir;
-    _warn "$akfile missing; creating a new one" if not -f $akfile;
+    my $n = "    (this is normal on a brand new install)";
+    _warn "$akdir missing; creating a new one\n$n"  if not -d $akdir;
+    _warn "$akfile missing; creating a new one\n$n" if not -f $akfile;
 
-    _mkdir( $akdir, 0700 ) if not -d $akfile;
+    _mkdir( $akdir, 0700 ) if not -d $akdir;
     if ( not -f $akfile ) {
         _print( $akfile, "" );
         chmod 0700, $akfile;
@@ -121,7 +122,7 @@ sub fp_file {
 
 sub fp_line {
     my ( $fh, $fn ) = tempfile();
-    print $fh shift;
+    print $fh shift() . "\n";
     close $fh;
     my $fp = fp_file($fn);
     unlink $fn;

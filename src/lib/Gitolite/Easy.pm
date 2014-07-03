@@ -16,6 +16,7 @@ package Gitolite::Easy;
 # external program, using the paths you just found:
 #
 #   BEGIN {
+#       $ENV{HOME} = "/home/git";   # or whatever is the hosting user's $HOME
 #       $ENV{GL_BINDIR} = "/full/path/to/gitolite/src";
 #       $ENV{GL_LIBDIR} = "/full/path/to/gitolite/src/lib";
 #   }
@@ -34,12 +35,15 @@ package Gitolite::Easy;
   is_admin
   is_super_admin
   in_group
+  in_role
 
   owns
   can_read
   can_write
 
   config
+
+  textfile
 
   %rc
   say
@@ -48,6 +52,8 @@ package Gitolite::Easy;
   _warn
   _print
   usage
+
+  option
 );
 #>>>
 use Exporter 'import';
@@ -100,15 +106,30 @@ sub in_group {
     my $g = shift;
     $g =~ s/^\@?/@/;
 
-    return grep { $_ eq $g } @{ Gitolite::Conf::Load::list_memberships($user) };
+    return grep { $_ eq $g } @{ Gitolite::Conf::Load::list_memberships( '-u', $user ) };
+}
+
+# in_role()
+
+# return true if $ENV{GL_USER} is set and has the given role for the given repo
+
+# shell equivalent
+#   if gitolite list-memberships -u $GL_USER -r $GL_REPO | grep -x $ROLENAME >/dev/null; then ...
+sub in_role {
+    valid_user();
+    my $r = shift;
+    $r =~ s/^\@?/@/;
+    my $repo = shift;
+
+    return grep { $_ eq $r } @{ Gitolite::Conf::Load::list_memberships( "-u", $user, "-r", $repo ) };
 }
 
 # owns()
 
-# return true if $ENV{GL_USER} is set and is the creator of the given repo
+# return true if $ENV{GL_USER} is set and is an OWNER of the given repo.
 
-# shell equivalent
-#   if gitolite creator $REPONAME $GL_USER; then ...
+# shell equivalent (assuming GL_USER is set)
+#   if gitolite owns $REPONAME; then ...
 sub owns {
     valid_user();
     my $r = shift;
@@ -116,7 +137,7 @@ sub owns {
     # prevent unnecessary disclosure of repo existence info
     return 0 if repo_missing($r);
 
-    return ( creator($r) eq $user );
+    return ( creator($r) eq $user or $rc{OWNER_ROLENAME} and in_role( $rc{OWNER_ROLENAME}, $r ) );
 }
 
 # can_read()
@@ -139,8 +160,8 @@ sub can_read {
 #   if gitolite access -q $REPONAME $GL_USER W; then ...
 sub can_write {
     valid_user();
-    my ($r, $aa, $ref) = @_;
-    $aa ||= 'W';
+    my ( $r, $aa, $ref ) = @_;
+    $aa  ||= 'W';
     $ref ||= 'any';
     return not( access( $r, $user, $aa, $ref ) =~ /DENIED/ );
 }
@@ -164,6 +185,60 @@ sub config {
 }
 
 # ----------------------------------------------------------------------
+
+# maintain a textfile; see comments in code for details, and calls in various
+# other programs (like 'motd', 'desc', and 'readme') for how to call
+sub textfile {
+    my %h = @_;
+    my $repodir;
+
+    # target file
+    _die "need file" unless $h{file};
+    _die "'$h{file}' contains a '/'" if $h{file} =~ m(/);
+    _sanity($h{file});
+
+    # target file's location.  This can come from one of two places: dir
+    # (which comes from our code, so does not need to be sanitised), or repo,
+    # which may come from the user
+    _die "need exactly one of repo or dir" unless $h{repo} xor $h{dir};
+    _die "'$h{dir}' does not exist" if $h{dir} and not -d $h{dir};
+    if ($h{repo}) {
+        _sanity($h{repo});
+        $h{dir} = "$rc{GL_REPO_BASE}/$h{repo}.git";
+        _die "repo '$h{repo}' does not exist" if not -d $h{dir};
+
+        my $umask = option( $h{repo}, 'umask' );
+        # note: using option() moves us to ADMIN_BASE, but we don't care here
+        umask oct($umask) if $umask;
+    }
+
+    # final full file name
+    my $f = "$h{dir}/$h{file}";
+
+    # operation
+    _die "can't have both prompt and text" if defined $h{prompt} and defined $h{text};
+    if (defined $h{prompt}) {
+        print STDERR $h{prompt};
+        my $t = join( "", <> );
+        _print($f, $t);
+    } elsif (defined $h{text}) {
+        _print($f, $h{text});
+    } else {
+        return slurp($f) if -f $f;
+    }
+
+    return '';
+}
+
+# ----------------------------------------------------------------------
+
+sub _sanity {
+    my $name = shift;
+    _die "'$name' contains bad characters" if $name !~ $REPONAME_PATT;
+    _die "'$name' ends with a '/'"         if $name =~ m(/$);
+    _die "'$name' contains '..'"           if $name =~ m(\.\.);
+}
+
 
 sub valid_user {
     _die "GL_USER not set" unless exists $ENV{GL_USER};
